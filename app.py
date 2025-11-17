@@ -64,9 +64,10 @@ st.pyplot(fig)
 # Interpretation
 # ---------------------------------------
 st.subheader("Interpretation")
-st.write(
+
+st.markdown(
     f"""
-### Key Insights  
+### Key Insights
 
 - With a vulnerability of **{v}**, and a potential loss of **${L:,.0f}**,  
   the Gordon–Loeb model suggests an optimal cybersecurity investment of:  
@@ -75,5 +76,7 @@ st.write(
 - According to the model, the optimal security budget is at most **37% of the expected loss** (v × L).
 
 - This model helps organizations avoid *overspending* or *underspending* on cybersecurity.
-"""
+""",
+    unsafe_allow_html=True
 )
+
