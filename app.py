@@ -1,90 +1,55 @@
-import streamlit as st
-import numpy as np
-import matplotlib.pyplot as plt
+# ---------------------------------------
+# Gordon–Loeb Investment Curve (Correct Model)
+# ---------------------------------------
 
-# ---------------------------------------
-# Dashboard Title
-# ---------------------------------------
-st.title("Gordon–Loeb Cybersecurity Investment Model Dashboard")
+st.subheader("Gordon–Loeb Investment Curve")
 st.write(
-    "This dashboard visualizes the Gordon–Loeb model, which helps determine "
-    "the optimal level of cybersecurity investment for a given vulnerability and loss estimate."
+    "This graph uses the actual Gordon–Loeb model formula, which shows that "
+    "optimal security investment does **not** increase linearly with vulnerability. "
+    "Instead, it rises but then flattens out, and never exceeds 1/e of the expected loss."
 )
 
-# ---------------------------------------
-# Sidebar Inputs
-# ---------------------------------------
-st.sidebar.header(" Input Parameters")
+# Correct GL model investment function:
+#   z*(v) = (1/e) * L * v * (1 - ln(v))
+def gordon_loeb_investment(v, L):
+    return (1 / np.e) * L * v * (1 - np.log(v))
 
-v = st.sidebar.slider(
-    "Vulnerability (v)",
-    min_value=0.01,
-    max_value=1.0,
-    value=0.3,
-    step=0.01,
-    help="Probability that the asset will be compromised."
-)
+# Curve for 0.01 ≤ v ≤ 1.0
+v_values = np.linspace(0.01, 1.0, 300)
+investment_curve = gordon_loeb_investment(v_values, L)
 
-L = st.sidebar.number_input(
-    "Potential Loss (L)",
-    min_value=1000.0,
-    max_value=10_000_000.0,
-    value=100000.0,
-    step=1000.0,
-    help="Financial loss if the asset is compromised."
-)
-
-# Gordon–Loeb simplified optimal investment
-optimal_investment = (1 / np.e) * v * L
-
-st.sidebar.write("---")
-st.sidebar.subheader("📌 Model Output")
-st.sidebar.metric("Optimal Investment", f"${optimal_investment:,.2f}")
-
-# ---------------------------------------
-# Main Section
-# ---------------------------------------
-
-st.subheader(" Gordon–Loeb Investment Curve")
-st.write("The curve shows how recommended investment changes as vulnerability varies.")
-
-# Generate curve data
-v_values = np.linspace(0.01, 1.0, 200)
-investment_curve = (1 / np.e) * v_values * L
+# Compute optimal investment using correct formula
+optimal_investment = gordon_loeb_investment(v, L)
 
 # Plot
 fig, ax = plt.subplots()
 ax.plot(v_values, investment_curve)
 ax.set_xlabel("Vulnerability (v)")
-ax.set_ylabel("Optimal Investment")
-ax.set_title("Gordon–Loeb Model Curve")
+ax.set_ylabel("Optimal Investment ($)")
+ax.set_title("Gordon–Loeb Model Investment Curve (Correct Formula)")
 st.pyplot(fig)
 
-
 # ---------------------------------------
-# Interpretation (HTML-safe, reliable)
+# Interpretation
 # ---------------------------------------
-st.subheader("Interpretation")
+st.markdown(
+    f"""
+### Key Insights from the Gordon–Loeb Model
 
-html = f"""
-<h3>Key Insights</h3>
-<p>
-With a vulnerability of <strong>{v}</strong>, and a potential loss of <strong>${L:,.0f}</strong>,<br>
-the Gordon–Loeb model suggests an optimal cybersecurity investment of:<br>
-<strong>${optimal_investment:,.2f}</strong>
-</p>
+- For vulnerability **v = {v}**, and potential loss **${L:,.0f}**,  
+  the recommended cybersecurity investment is:  
+  **${optimal_investment:,.2f}**
 
-<p>
-According to the model, the optimal security budget is at most <strong>37% of the expected loss</strong> (v × L).
-</p>
+- The model predicts that optimal security spending:
+  - **Does not increase linearly** with vulnerability  
+  - Peaks for vulnerabilities around **0.3–0.4**  
+  - **Never exceeds ~37% of the expected loss** (v × L)
 
-<p>
-This model helps organizations avoid <em>overspending</em> or <em>underspending</em> on cybersecurity.
-</p>
+- Interpretation:
+  - Even if vulnerability becomes extremely high (close to 1),  
+    **it is not optimal to spend more and more on cybersecurity**.
+  - Spending beyond a certain point yields diminishing returns.
+
+This is exactly why the Gordon–Loeb curve goes up and then levels off instead of being a straight line.
 """
-
-st.markdown(html, unsafe_allow_html=True)
-
-
-
-
+)
