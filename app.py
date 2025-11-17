@@ -1,32 +1,72 @@
-# ---------------------------------------
-# Gordon–Loeb Investment Curve (Correct Model)
-# ---------------------------------------
+import streamlit as st
+import numpy as np
+import matplotlib.pyplot as plt
 
-st.subheader("Gordon–Loeb Investment Curve")
+# ---------------------------------------
+# Dashboard Title
+# ---------------------------------------
+st.title("Gordon–Loeb Cybersecurity Investment Model Dashboard")
 st.write(
-    "This graph uses the actual Gordon–Loeb model formula, which shows that "
-    "optimal security investment does **not** increase linearly with vulnerability. "
-    "Instead, it rises but then flattens out, and never exceeds 1/e of the expected loss."
+    "This dashboard visualizes the Gordon–Loeb model, which helps determine "
+    "the optimal level of cybersecurity investment for a given vulnerability and loss estimate."
 )
 
-# Correct GL model investment function:
-#   z*(v) = (1/e) * L * v * (1 - ln(v))
+# ---------------------------------------
+# Sidebar Inputs
+# ---------------------------------------
+st.sidebar.header(" Input Parameters")
+
+v = st.sidebar.slider(
+    "Vulnerability (v)",
+    min_value=0.01,
+    max_value=1.0,
+    value=0.3,
+    step=0.01,
+    help="Probability that the asset will be compromised."
+)
+
+L = st.sidebar.number_input(
+    "Potential Loss (L)",
+    min_value=1000.0,
+    max_value=10_000_000.0,
+    value=100000.0,
+    step=1000.0,
+    help="Financial loss if the asset is compromised."
+)
+
+# ---------------------------------------
+# Correct Gordon–Loeb Model Function
+# ---------------------------------------
 def gordon_loeb_investment(v, L):
     return (1 / np.e) * L * v * (1 - np.log(v))
 
-# Curve for 0.01 ≤ v ≤ 1.0
+# Compute current optimal investment
+optimal_investment = gordon_loeb_investment(v, L)
+
+# Sidebar output
+st.sidebar.write("---")
+st.sidebar.subheader("📌 Model Output")
+st.sidebar.metric("Optimal Investment", f"${optimal_investment:,.2f}")
+
+# ---------------------------------------
+# Correct Gordon–Loeb Investment Curve
+# ---------------------------------------
+st.subheader("Gordon–Loeb Investment Curve (Correct Model)")
+st.write(
+    "The true Gordon–Loeb model predicts that optimal investment rises with vulnerability "
+    "but then declines due to diminishing returns. This graph shows the correct shape."
+)
+
+# Curve values
 v_values = np.linspace(0.01, 1.0, 300)
 investment_curve = gordon_loeb_investment(v_values, L)
-
-# Compute optimal investment using correct formula
-optimal_investment = gordon_loeb_investment(v, L)
 
 # Plot
 fig, ax = plt.subplots()
 ax.plot(v_values, investment_curve)
 ax.set_xlabel("Vulnerability (v)")
 ax.set_ylabel("Optimal Investment ($)")
-ax.set_title("Gordon–Loeb Model Investment Curve (Correct Formula)")
+ax.set_title("Gordon–Loeb Model Investment Curve")
 st.pyplot(fig)
 
 # ---------------------------------------
@@ -34,22 +74,19 @@ st.pyplot(fig)
 # ---------------------------------------
 st.markdown(
     f"""
-### Key Insights from the Gordon–Loeb Model
+### 🔍 Key Insights
 
-- For vulnerability **v = {v}**, and potential loss **${L:,.0f}**,  
-  the recommended cybersecurity investment is:  
+- With vulnerability **v = {v}**, and potential loss **${L:,.0f}**,  
+  the Gordon–Loeb model recommends investing:  
   **${optimal_investment:,.2f}**
 
-- The model predicts that optimal security spending:
-  - **Does not increase linearly** with vulnerability  
-  - Peaks for vulnerabilities around **0.3–0.4**  
-  - **Never exceeds ~37% of the expected loss** (v × L)
+- The model shows:
+  - Investment rises as vulnerability increases  
+  - But after a point (~0.35), extra vulnerability **does NOT justify more spending**  
+  - Spending never exceeds **37% of the expected loss** (v × L)
 
-- Interpretation:
-  - Even if vulnerability becomes extremely high (close to 1),  
-    **it is not optimal to spend more and more on cybersecurity**.
-  - Spending beyond a certain point yields diminishing returns.
+- This reflects real-world diminishing returns:  
+  throwing more money at cybersecurity **does not always improve protection**.
 
-This is exactly why the Gordon–Loeb curve goes up and then levels off instead of being a straight line.
 """
 )
