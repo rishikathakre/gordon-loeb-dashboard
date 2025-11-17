@@ -63,8 +63,6 @@ st.pyplot(fig)
 # ---------------------------------------
 # Interpretation
 # ---------------------------------------
-st.subheader("Interpretation")
-
 st.markdown(
     f"""
 ### Key Insights
@@ -76,7 +74,7 @@ st.markdown(
 - According to the model, the optimal security budget is at most **37% of the expected loss** (v × L).
 
 - This model helps organizations avoid *overspending* or *underspending* on cybersecurity.
-""",
-    unsafe_allow_html=True
+"""
 )
+
 
