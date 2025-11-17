@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 # ---------------------------------------
 # Dashboard Title
 # ---------------------------------------
-st.title("📊 Gordon–Loeb Cybersecurity Investment Model Dashboard")
+st.title("Gordon–Loeb Cybersecurity Investment Model Dashboard")
 st.write(
     "This dashboard visualizes the Gordon–Loeb model, which helps determine "
     "the optimal level of cybersecurity investment for a given vulnerability and loss estimate."
@@ -14,7 +14,7 @@ st.write(
 # ---------------------------------------
 # Sidebar Inputs
 # ---------------------------------------
-st.sidebar.header("🔧 Input Parameters")
+st.sidebar.header(" Input Parameters")
 
 v = st.sidebar.slider(
     "Vulnerability (v)",
@@ -45,7 +45,7 @@ st.sidebar.metric("Optimal Investment", f"${optimal_investment:,.2f}")
 # Main Section
 # ---------------------------------------
 
-st.subheader("📉 Gordon–Loeb Investment Curve")
+st.subheader(" Gordon–Loeb Investment Curve")
 st.write("The curve shows how recommended investment changes as vulnerability varies.")
 
 # Generate curve data
@@ -64,16 +64,17 @@ st.pyplot(fig)
 # Interpretation
 # ---------------------------------------
 
-st.subheader("🧠 Interpretation")
+st.subheader("Interpretation")
 st.write(
     f"""
 ### Key Insights  
-- With a vulnerability of **{v}**, and a potential loss of **${L:,.0f}**,  
-  the Gordon–Loeb model suggests an optimal cybersecurity investment of:  
-  **${optimal_investment:,.2f}**
+- With a vulnerability of **{v}, and a potential loss of **${L:,.0f},  
+  the Gordon Loeb model suggests an optimal cybersecurity investment of:  
+  **${optimal_investment:,.2f}
 
 - According to the model, the optimal security budget is at most **37% of the expected loss** (v × L).
 
 - This model helps organizations avoid *overspending* or *underspending* on cybersecurity.
 """
 )
+
