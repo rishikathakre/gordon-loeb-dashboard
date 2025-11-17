@@ -60,21 +60,31 @@ ax.set_ylabel("Optimal Investment")
 ax.set_title("Gordon–Loeb Model Curve")
 st.pyplot(fig)
 
+
 # ---------------------------------------
-# Interpretation
+# Interpretation (HTML-safe, reliable)
 # ---------------------------------------
-st.markdown(
-    f"""
-### Key Insights
+st.subheader("Interpretation")
 
-- With a vulnerability of **{v}**, and a potential loss of **${L:,.0f}**,  
-  the Gordon–Loeb model suggests an optimal cybersecurity investment of:  
-  **${optimal_investment:,.2f}**
+html = f"""
+<h3>Key Insights</h3>
+<p>
+With a vulnerability of <strong>{v}</strong>, and a potential loss of <strong>${L:,.0f}</strong>,<br>
+the Gordon–Loeb model suggests an optimal cybersecurity investment of:<br>
+<strong>${optimal_investment:,.2f}</strong>
+</p>
 
-- According to the model, the optimal security budget is at most **37% of the expected loss** (v × L).
+<p>
+According to the model, the optimal security budget is at most <strong>37% of the expected loss</strong> (v × L).
+</p>
 
-- This model helps organizations avoid *overspending* or *underspending* on cybersecurity.
+<p>
+This model helps organizations avoid <em>overspending</em> or <em>underspending</em> on cybersecurity.
+</p>
 """
-)
+
+st.markdown(html, unsafe_allow_html=True)
+
+
 
 
