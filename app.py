@@ -2,91 +2,89 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 
-# ---------------------------------------
-# Dashboard Title
-# ---------------------------------------
-st.title("Gordon–Loeb Cybersecurity Investment Model Dashboard")
+st.title("Gordon–Loeb Model — Example from Gordon, Loeb & Zhou (2020)")
 st.write(
-    "This dashboard visualizes the Gordon–Loeb model, which helps determine "
-    "the optimal level of cybersecurity investment for a given vulnerability and loss estimate."
+    "This dashboard implements the *exact* formula from the example on page 6 "
+    "of the Gordon–Loeb paper, using the security breach probability function "
+    "s(z,v) = v / (1 + z/2). The optimal investment is z* = √(2 v L) − 2."
 )
 
-# ---------------------------------------
+# -------------------------
 # Sidebar Inputs
-# ---------------------------------------
+# -------------------------
 st.sidebar.header(" Input Parameters")
 
-v = st.sidebar.slider(
+v = st.sidebar.selectbox(
     "Vulnerability (v)",
-    min_value=0.01,
-    max_value=1.0,
-    value=0.3,
-    step=0.01,
-    help="Probability that the asset will be compromised."
+    options=[0.1, 0.3, 0.5],
+    index=1,
+    help="The three values used in the paper’s example."
 )
 
 L = st.sidebar.number_input(
     "Potential Loss (L)",
-    min_value=1000.0,
-    max_value=10_000_000.0,
-    value=100000.0,
-    step=1000.0,
-    help="Financial loss if the asset is compromised."
+    min_value=1_000_000.0,
+    max_value=150_000_000.0,
+    value=10_000_000.0,
+    step=1_000_000.0,
+    help="Loss values between $1M and $150M as in the paper."
 )
 
-# ---------------------------------------
-# Correct Gordon–Loeb Model Function
-# ---------------------------------------
-def gordon_loeb_investment(v, L):
-    return (1 / np.e) * L * v * (1 - np.log(v))
+# -------------------------
+# Correct Optimal Investment (from paper)
+# -------------------------
+def optimal_z(v, L):
+    z_star = np.sqrt(2 * v * L) - 2
+    return max(z_star, 0)   # do not allow negative optimal investment
 
-# Compute current optimal investment
-optimal_investment = gordon_loeb_investment(v, L)
+z_star = optimal_z(v, L)
 
-# Sidebar output
-st.sidebar.write("---")
 st.sidebar.subheader("📌 Model Output")
-st.sidebar.metric("Optimal Investment", f"${optimal_investment:,.2f}")
+st.sidebar.metric("Optimal Investment z*", f"${z_star:,.2f}")
 
-# ---------------------------------------
-# Correct Gordon–Loeb Investment Curve
-# ---------------------------------------
-st.subheader("Gordon–Loeb Investment Curve (Correct Model)")
+# -------------------------
+# Plot optimal z vs L for v
+# -------------------------
+st.subheader("Optimal Investment Curve (Matches Page 7 of the Paper)")
 st.write(
-    "The true Gordon–Loeb model predicts that optimal investment rises with vulnerability "
-    "but then declines due to diminishing returns. This graph shows the correct shape."
+    "For each v = 0.1, 0.3, 0.5 we compute z* = √(2 v L) − 2 "
+    "for L ranging from $1M to $150M."
 )
 
-# Curve values
-v_values = np.linspace(0.01, 1.0, 300)
-investment_curve = gordon_loeb_investment(v_values, L)
+L_vals = np.linspace(1_000_000, 150_000_000, 300)
 
-# Plot
 fig, ax = plt.subplots()
-ax.plot(v_values, investment_curve)
-ax.set_xlabel("Vulnerability (v)")
-ax.set_ylabel("Optimal Investment ($)")
-ax.set_title("Gordon–Loeb Model Investment Curve")
+
+for vv in [0.1, 0.3, 0.5]:
+    z_vals = np.sqrt(2 * vv * L_vals) - 2
+    z_vals = np.maximum(z_vals, 0)
+    ax.plot(L_vals, z_vals, label=f"v = {vv}")
+
+ax.set_xlabel("Loss L ($)")
+ax.set_ylabel("Optimal Investment z* ($)")
+ax.set_title("Optimal Cybersecurity Investment (Exact Example from Paper)")
+ax.legend()
+
 st.pyplot(fig)
 
-# ---------------------------------------
+# -------------------------
 # Interpretation
-# ---------------------------------------
+# -------------------------
 st.markdown(
     f"""
-### 🔍 Key Insights
+### Interpretation
 
-- With vulnerability **v = {v}**, and potential loss **${L:,.0f}**,  
-  the Gordon–Loeb model recommends investing:  
-  **${optimal_investment:,.2f}**
+- Using **v = {v}** and **L = ${L:,.0f}**,  
+  the model yields an optimal cybersecurity investment of:  
+  **${z_star:,.2f}**
 
-- The model shows:
-  - Investment rises as vulnerability increases  
-  - But after a point (~0.35), extra vulnerability **does NOT justify more spending**  
-  - Spending never exceeds **37% of the expected loss** (v × L)
+### Based on the formula:
+\[
+z^* = \sqrt{{2 v L}} - 2
+\]
 
-- This reflects real-world diminishing returns:  
-  throwing more money at cybersecurity **does not always improve protection**.
-
-"""
+- Investment increases as loss L increases
+- Higher vulnerability v rapidly increases optimal investment
+- Negative values are mapped to 0 (no investment needed)
+    """
 )
